@@ -54,15 +54,13 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+My model consists of a convolution neural network with 5x5 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
 
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
+Each convolution layer is followed by a RELU layer to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 18). 
 
 ####2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
-
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). By monitoring MSE output of both training sets and validation sets, I didn't see obvious overfitting because they are much close to each other. So I didn't use dropout layers in my model. The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 ####3. Model parameter tuning
 
@@ -70,7 +68,7 @@ The model used an adam optimizer, so the learning rate was not tuned manually (m
 
 ####4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ... 
+Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, counter-clock wise driving. I didn't specifically try recovering driving because I like the idea of left and right camera. I tried to use the left and right camera data to achieve effects of recovering driving.
 
 For details about how I created the training data, see the next section. 
 
@@ -78,25 +76,31 @@ For details about how I created the training data, see the next section.
 
 ####1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+The overall strategy for deriving a model architecture was to get a simple framework to work first, and then try more advanced models and optimize it.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+My first step was to only use a flatten layer, which is simply to make sure the whole process works, including data reading from files, train-test splitting, model saving, and running the saved model in autonomous mode. In this step, I just used the sample data.
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
+Then I added those basic, but necessary data preprocessing and augmenting techniques, including a lambda layer to normalizing the data, a cropping layer to remove the top and bottom parts of the images, and the augmentation by flipping the images. I also enabled generator because I knew later I would have much more data to process which would otherwise require a lot of memory.
 
-To combat the overfitting, I modified the model so that ...
+Now I have a basic framework, or pipeline, with which, I can formally start my training work. I first generated my own training data, including two laps of center driving, and one lap of counter clock wise driving. I used LeNet architecture because it's a well known image recognition related architecture which should at least work as a start point. 
 
-Then I ... 
+With these, I found the car can autonomously drive on the first part of track one, though it always kept to the left side of the road. I think it's because I don't have recovering driving data. I then enabled the left and right camera data, and tried to tune the correction angle. After some efforts, I was able to find a value, with which, on the first part of track one, the car could driver elegently.
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+Then I tried a more advanced network, the Nvidia model, just to see if it can bring any obvious difference. The result was that it didn't give me apparent improvement, but it didn't make things worse, either. So I decided to keep with that model.
 
-At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
+Since the car didn't work well on those sharp turns, I just captured more data on those two sharp turns. The added data greatly improved the performance on those difficult turns, but it also had some side effect on the other part of the track.
+
+I thought maybe I had too much data on the turns now, also since I saw the power of more data, I just captured more data on the first part of the track so that the samples were not severely biased to one part. With these data, the car for the first time was able to drive through the whole track, though not perfectly, but it didn't drive off the road.
+
+In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. At the beginning, I didn't pay much attention to overfitting. But in the last fine tuning stage, I tried to see whether overfitting was a problem. But luckily, it was not since the MSE of both training sets and validation sets were close. Though, I did try to add dropout layers but didn't see obvious difference. So I just removed them.
+
+After capturing more data on the spots that the car didn't drive perfectly, in the end of the process, the car is able to drive autonomously around the track while keeps inside the lanes.
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+I just used the Nvidia model (model.py lines 18-24). It is a convolution neural network with the following layers and layer sizes.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
+Here is a visualization of the architecture:
 
 ![alt text][image1]
 
@@ -106,24 +110,22 @@ To capture good driving behavior, I first recorded two laps on track one using c
 
 ![alt text][image2]
 
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
+I then recorded one lap of counter clock wise driving. Here's an example image of counter clock wise driving:
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
+![alt_test][image2]
 
-Then I repeated this process on track two in order to get more data points.
+I didn't record the vehicle recovering from the left side and right sides of the road back to center but I used the left and right camera data to achieve the same effect, so that the vehicle would learn to go back to the center of the road when it is too close to the edge. These images shows the view of the left and right camera:
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+![left camera][image3]
+![right camera][image4]
+
+To augment the data sat, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has then been flipped:
 
 ![alt text][image6]
-![alt text][image7]
 
-Etc ....
-
-After the collection process, I had X number of data points. I then preprocessed this data by ...
+After the collection process, I had X number of data points. The preprocessing includes normalization and cropping.
 
 
-I finally randomly shuffled the data set and put Y% of the data into a validation set. 
+I finally randomly shuffled the data set and put 30% of the data into a validation set. 
 
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was 5 as evidenced by the ever decreasing MSE. I used an adam optimizer so that manually training the learning rate wasn't necessary.
