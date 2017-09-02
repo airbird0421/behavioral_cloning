@@ -54,7 +54,7 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 5x5 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+My model consists of a convolution neural network with 5x5 and 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
 
 Each convolution layer is followed by a RELU layer to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 18). 
 
@@ -68,7 +68,7 @@ The model used an adam optimizer, so the learning rate was not tuned manually (m
 
 ####4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, counter-clock wise driving. I didn't specifically try recovering driving because I like the idea of left and right camera. I tried to use the left and right camera data to achieve effects of recovering driving.
+Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving and counter-clock wise driving. I didn't specifically try recovering driving because I like the idea of left and right camera. I tried to use the left and right camera data to achieve effects of recovering driving.
 
 For details about how I created the training data, see the next section. 
 
@@ -78,7 +78,7 @@ For details about how I created the training data, see the next section.
 
 The overall strategy for deriving a model architecture was to get a simple framework to work first, and then try more advanced models and optimize it.
 
-My first step was to only use a flatten layer, which is simply to make sure the whole process works, including data reading from files, train-test splitting, model saving, and running the saved model in autonomous mode. In this step, I just used the sample data.
+My first step was to only use a flatten layer, which was simply to make sure the whole process works, including data reading from files, train-test splitting, model saving, and running the saved model in autonomous mode. In this step, I just used the sample data.
 
 Then I added those basic, but necessary data preprocessing and augmenting techniques, including a lambda layer to normalizing the data, a cropping layer to remove the top and bottom parts of the images, and the augmentation by flipping the images. I also enabled generator because I knew later I would have much more data to process which would otherwise require a lot of memory.
 
@@ -137,7 +137,9 @@ I didn't record the vehicle recovering from the left side and right sides of the
 ![left camera][image3]
 ![right camera][image4]
 
-To augment the data set, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has then been flipped:
+I also recorded more driving data on difficult spots where the car tended to drive off the road.
+
+To augment the data set, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has been flipped:
 
 ![alt text][image6]
 
