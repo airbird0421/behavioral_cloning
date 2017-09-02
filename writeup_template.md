@@ -82,23 +82,41 @@ My first step was to only use a flatten layer, which is simply to make sure the 
 
 Then I added those basic, but necessary data preprocessing and augmenting techniques, including a lambda layer to normalizing the data, a cropping layer to remove the top and bottom parts of the images, and the augmentation by flipping the images. I also enabled generator because I knew later I would have much more data to process which would otherwise require a lot of memory.
 
-Now I have a basic framework, or pipeline, with which, I can formally start my training work. I first generated my own training data, including two laps of center driving, and one lap of counter clock wise driving. I used LeNet architecture because it's a well known image recognition related architecture which should at least work as a start point. 
+I had a basic framework, or pipeline, with which, I could formally start my training work. I first generated my own training data, including two laps of center driving, and one lap of counter clock wise driving. I used LeNet architecture because it's a well known image recognition related architecture which should at least work as a start point. 
 
-With these, I found the car can autonomously drive on the first part of track one, though it always kept to the left side of the road. I think it's because I don't have recovering driving data. I then enabled the left and right camera data, and tried to tune the correction angle. After some efforts, I was able to find a value, with which, on the first part of track one, the car could driver elegently.
+With these, I found the car could autonomously drive on the first part of track one, though it always kept to the left side of the road. I thought it was because I didn't have recovering driving data. I then enabled the left and right camera data, and tried to tune the correction angle. After some efforts, I was able to find a value, with which, on the first part of track one, the car could driver elegently.
 
-Then I tried a more advanced network, the Nvidia model, just to see if it can bring any obvious difference. The result was that it didn't give me apparent improvement, but it didn't make things worse, either. So I decided to keep with that model.
+Then I tried a more advanced network, the Nvidia model, just to see if it can bring any obvious difference. The result was that it didn't give me apparent improvement, but it didn't make things worse either. So I decided to keep with that model.
 
-Since the car didn't work well on those sharp turns, I just captured more data on those two sharp turns. The added data greatly improved the performance on those difficult turns, but it also had some side effect on the other part of the track.
+Since the car didn't work well on those sharp turns, I just captured more data on those two sharp turns. The added data greatly improved the performance on those difficult turns, but it also had some side effects on the other part of the track.
 
 I thought maybe I had too much data on the turns now, also since I saw the power of more data, I just captured more data on the first part of the track so that the samples were not severely biased to one part. With these data, the car for the first time was able to drive through the whole track, though not perfectly, but it didn't drive off the road.
 
 In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. At the beginning, I didn't pay much attention to overfitting. But in the last fine tuning stage, I tried to see whether overfitting was a problem. But luckily, it was not since the MSE of both training sets and validation sets were close. Though, I did try to add dropout layers but didn't see obvious difference. So I just removed them.
 
-After capturing more data on the spots that the car didn't drive perfectly, in the end of the process, the car is able to drive autonomously around the track while keeps inside the lanes.
+After capturing more data on the spots that the car didn't drive perfectly, in the end of the process, the car is able to drive autonomously around the track while keeping inside the lanes.
 
 ####2. Final Model Architecture
 
 I just used the Nvidia model (model.py lines 18-24). It is a convolution neural network with the following layers and layer sizes.
+
+| Layer         		|     Description	        					| 
+|:---------------------:|:---------------------------------------------:| 
+| Input         		| 160x320x3 RGB image   							| 
+| Convolution 5x5     	| 1x1 stride, valid padding, outputs 28x28x12 	|
+| RELU					|												|
+| Max pooling	      	| 2x2 stride,  outputs 14x14x12 				|
+| Convolution 5x5	    | 1x1 stride, valid padding, outputs 10x10x32			|
+| RELU					|												|
+| Max pooling	      	| 2x2 stride,  outputs 5x5x32 				|
+| Fully connected		| input 800, output 120        									|
+| RELU					|												|
+| dropout					|			keep_prob = 0.5									|
+| Fully connected		| input 120, output 84        									|
+| RELU					|												|
+| dropout					|			keep_prob = 0.5									|
+| Fully connected		| input 84, output 43        									|
+| Softmax				| etc.        									|
 
 Here is a visualization of the architecture:
 
@@ -119,7 +137,7 @@ I didn't record the vehicle recovering from the left side and right sides of the
 ![left camera][image3]
 ![right camera][image4]
 
-To augment the data sat, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has then been flipped:
+To augment the data set, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has then been flipped:
 
 ![alt text][image6]
 
