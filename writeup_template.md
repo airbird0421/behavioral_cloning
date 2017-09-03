@@ -18,13 +18,11 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image1]: ./examples/center.jpg "Center Image"
+[image2]: ./examples/counter-clock.jpg "Counter Clock Driving"
+[image3]: ./examples/flip.jpg "Flipped Image"
+[image4]: ./examples/left.jpg "Left Camera Image"
+[image5]: ./examples/right.jpg "Right Camera Image
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -39,6 +37,7 @@ My project includes the following files:
 * drive.py for driving the car in autonomous mode
 * model.h5 containing a trained convolution neural network 
 * writeup_report.md or writeup_report.pdf summarizing the results
+* video.mp4 for the final demo video
 
 ####2. Submission includes functional code
 Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
@@ -54,17 +53,17 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 5x5 and 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
+My model consists of a convolution neural network with 5x5 and 3x3 filter sizes and depths between 24 and 64 (model.py lines 85-94) 
 
-Each convolution layer is followed by a RELU layer to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 18). 
+Each convolution layer is followed by a RELU layer to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 72). 
 
 ####2. Attempts to reduce overfitting in the model
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). By monitoring MSE output of both training sets and validation sets, I didn't see obvious overfitting because they are much close to each other. So I didn't use dropout layers in my model. The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 97-99). By monitoring MSE output of both training sets and validation sets, I didn't see obvious overfitting because they are much close to each other. So I didn't use dropout layers in my model. The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 ####3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 96).
 
 ####4. Appropriate training data
 
@@ -98,52 +97,48 @@ After capturing more data on the spots that the car didn't drive perfectly, in t
 
 ####2. Final Model Architecture
 
-I just used the Nvidia model (model.py lines 18-24). It is a convolution neural network with the following layers and layer sizes.
+I just used the Nvidia model (model.py lines 85-94). It is a convolution neural network with the following layers and layer sizes.
 
 | Layer         		|     Description	        					| 
 |:---------------------:|:---------------------------------------------:| 
-| Input         		| 160x320x3 RGB image   							| 
-| Convolution 5x5     	| 1x1 stride, valid padding, outputs 28x28x12 	|
+| Input         		| 70x320x3 cropped and normalized image   							| 
+| Convolution 5x5     	| 2x2 stride, output depth 24 	|
 | RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 14x14x12 				|
-| Convolution 5x5	    | 1x1 stride, valid padding, outputs 10x10x32			|
+| Convolution 5x5	    | 2x2 stride, outputs depth 36			|
 | RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 5x5x32 				|
-| Fully connected		| input 800, output 120        									|
+| Convolution 5x5     	| 2x2 stride, output depth 48 	|
 | RELU					|												|
-| dropout					|			keep_prob = 0.5									|
-| Fully connected		| input 120, output 84        									|
+| Convolution 3x3	    | 1x1 stride, outputs depth 64			|
 | RELU					|												|
-| dropout					|			keep_prob = 0.5									|
-| Fully connected		| input 84, output 43        									|
-| Softmax				| etc.        									|
-
-Here is a visualization of the architecture:
-
-![alt text][image1]
+| Convolution 3x3	    | 1x1 stride, outputs depth 64			|
+| RELU					|												|
+| Fully connected		| output 100        									|
+| Fully connected		| output 50        									|
+| Fully connected		| output 10        									|
+| Fully connected		| output 1        									|
 
 ####3. Creation of the Training Set & Training Process
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
-![alt text][image2]
+![center_driving][image1]
 
 I then recorded one lap of counter clock wise driving. Here's an example image of counter clock wise driving:
 
-![alt_test][image2]
+![counter_clock_driving][image2]
 
 I didn't record the vehicle recovering from the left side and right sides of the road back to center but I used the left and right camera data to achieve the same effect, so that the vehicle would learn to go back to the center of the road when it is too close to the edge. These images shows the view of the left and right camera:
 
-![left camera][image3]
-![right camera][image4]
+![left camera][image4]
+![right camera][image5]
 
 I also recorded more driving data on difficult spots where the car tended to drive off the road.
 
 To augment the data set, I also flipped images and angles thinking that this would help the model to generalize better since most turns on track one are left turns. With flipped images, the model should be able to generalize to right turns. For example, here is an image that has been flipped:
 
-![alt text][image6]
+![flipped_image][image3]
 
-After the collection process, I had X number of data points. The preprocessing includes normalization and cropping.
+After the collection process, I had 40884 number of data points. The preprocessing includes normalization and cropping.
 
 
 I finally randomly shuffled the data set and put 30% of the data into a validation set. 
