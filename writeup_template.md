@@ -22,7 +22,7 @@ The goals / steps of this project are the following:
 [image2]: ./examples/counter-clock.jpg "Counter Clock Driving"
 [image3]: ./examples/flip.jpg "Flipped Image"
 [image4]: ./examples/left.jpg "Left Camera Image"
-[image5]: ./examples/right.jpg "Right Camera Image
+[image5]: ./examples/right.jpg "Right Camera Image"
 
 ## Rubric Points
 ###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
